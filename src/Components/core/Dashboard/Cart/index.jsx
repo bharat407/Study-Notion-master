@@ -19,7 +19,7 @@ export default function Cart() {
           <RenderTotalAmount />
         </div>
       ) : (
-        <p>Your Cart is Empty</p>
+        <p className="text-white">Your Cart is Empty</p>
       )}
     </div>
   );

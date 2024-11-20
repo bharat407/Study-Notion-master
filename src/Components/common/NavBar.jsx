@@ -1,356 +1,290 @@
-import React, { useState } from "react";
-import logo from "../../assets/Logo/Logo-Full-Light.png";
-import { Link, matchPath } from "react-router-dom";
-import { NavbarLinks } from "../../data/navbar-links";
-import { useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { TiShoppingCart } from "react-icons/ti";
-import ProfileDropDown from "../core/Auth/ProfileDropDown";
-import { categories } from "../../services/apis";
-import { apiConnector } from "../../services/apiConnector";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { useRef } from "react";
-import { HiSearch } from "react-icons/hi";
-import { useNavigate } from "react-router";
+import React, { useState } from 'react'
+import logo from "../../assets/Logo/Logo-Full-Light.png"
+import { Link, matchPath } from 'react-router-dom'
+import { NavbarLinks } from '../../data/navbar-links'
+import { useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { TiShoppingCart } from 'react-icons/ti'
+import ProfileDropDown from '../core/Auth/ProfileDropDown'
+import { categories } from '../../services/apis'
+import { apiConnector } from '../../services/apiConnector'
+import { useDispatch } from 'react-redux'
+import { useEffect } from 'react'
+import { GiHamburgerMenu } from 'react-icons/gi'
+import { useRef } from 'react'
+import { HiSearch } from 'react-icons/hi'
+import { useNavigate } from 'react-router'
 
 const NavBar = ({ setProgress }) => {
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  const { token } = useSelector((state) => state.auth);
-  const { user } = useSelector((state) => state.profile);
-  const { totalItems } = useSelector((state) => state.cart);
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [visible, setVisible] = useState(true);
-  const [searchValue, setSearchValue] = useState("");
-  const navigate = useNavigate();
+    const { token } = useSelector(state => state.auth);
+    const { user } = useSelector(state => state.profile);
+    const { totalItems } = useSelector(state => state.cart);
+    const [prevScrollPos, setPrevScrollPos] = useState(0);
+    const [visible, setVisible] = useState(true)
+    const [searchValue, setSearchValue] = useState("")
+    const navigate = useNavigate();
 
-  const location = useLocation();
-  const matchRoutes = (routes) => {
-    return matchPath({ path: routes }, location.pathname);
-  };
 
-  const [sublinks, setsublinks] = useState([]);
-  const fetchSublinks = async () => {
-    try {
-      const result = await apiConnector("GET", categories.CATEGORIES_API);
-      if (result?.data?.data?.length > 0) {
-        setsublinks(result?.data?.data);
-      }
-      localStorage.setItem("sublinks", JSON.stringify(result.data.data));
-    } catch (error) {
-      // setsublinks(JSON.parse(localStorage.getItem("sublinks")));
-      // console.log("could not fetch sublinks",localStorage.getItem("sublinks"));
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    fetchSublinks();
-  }, []);
 
-  const show = useRef();
-  const overlay = useRef();
-
-  const shownav = () => {
-    if (show.current) {
-      show.current.classList.toggle("translate-x-full");
-      show.current.classList.toggle("translate-x-0");
-    }
-    if (overlay.current) {
-      overlay.current.classList.toggle("invisible");
-      overlay.current.classList.toggle("opacity-0");
-      overlay.current.classList.toggle("opacity-100");
-    }
-  };
-
-  //handeling navbar scroll
-  const handleScroll = () => {
-    const currentScrollPos = window.scrollY;
-
-    if (currentScrollPos > prevScrollPos) {
-      setVisible(false);
-    } else {
-      setVisible(true);
+    const location = useLocation()
+    const matchRoutes = (routes) => {
+        return matchPath({ path: routes }, location.pathname)
     }
 
-    setPrevScrollPos(currentScrollPos);
-  };
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    const [sublinks, setsublinks] = useState([]);
+    const fetchSublinks = async () => {
+        try {
+            const result = await apiConnector("GET", categories.CATEGORIES_API);
+            if (result?.data?.data?.length > 0) {
+                setsublinks(result?.data?.data);
+            }
+            localStorage.setItem("sublinks", JSON.stringify(result.data.data));
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  });
-
-  const handelSearch = (e) => {
-    e.preventDefault();
-    if (searchValue?.length > 0) {
-      navigate(`/search/${searchValue}`);
-      setSearchValue("");
+        } catch (error) {
+            // setsublinks(JSON.parse(localStorage.getItem("sublinks")));
+            // console.log("could not fetch sublinks",localStorage.getItem("sublinks"));
+            console.log(error);
+        }
     }
-  };
+    useEffect(() => {
+        fetchSublinks();
+    }, [])
 
-  return (
-    <div className="fixed top-0 left-0 w-full bg-richblack-900 border-b-[1px] border-b-richblack-700 h-14 z-50">
-      <div className="flex w-11/12 max-w-maxContent mx-auto items-center justify-between h-full">
-        {/* Logo */}
-        <Link
-          to="/"
-          onClick={() => dispatch(setProgress(100))}
-          className="flex-shrink-0"
-        >
-          <img
-            src={logo}
-            alt="Study Notion"
-            className="w-[130px] md:w-[160px] h-auto"
-          />
-        </Link>
+    const show = useRef();
+    const overlay = useRef();
 
-        {/* Mobile Cart Icon */}
-        {user && user?.accountType !== "Instructor" && (
-          <div className="block md:hidden">
-            <Link
-              to="/dashboard/cart"
-              onClick={() => dispatch(setProgress(100))}
-              className="relative p-2"
-            >
-              <TiShoppingCart className="w-7 h-7 fill-richblack-25" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-yellow-100 text-richblack-900 text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-          </div>
-        )}
+    const shownav = () => {
+        show.current.classList.toggle('navshow');
+        overlay.current.classList.toggle('hidden');
+    }
 
-        {/* Mobile Hamburger */}
-        <div className="md:hidden relative">
-          <button
-            onClick={shownav}
-            className="p-2 hover:bg-richblack-800 rounded-lg transition-all duration-200"
-          >
-            <GiHamburgerMenu className="w-6 h-6 fill-richblack-25" />
-          </button>
 
-          {/* Mobile Menu Overlay */}
-          <div
-            ref={overlay}
-            onClick={shownav}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 invisible peer-checked:opacity-100 peer-checked:visible transition-all duration-300"
-          />
 
-          {/* Mobile Menu */}
-          <div
-            ref={show}
-            className="fixed right-0 top-0 w-[270px] h-screen bg-richblack-900 translate-x-full transition-transform duration-300 ease-in-out overflow-y-auto"
-          >
-            <div className="p-6 flex flex-col h-full">
-              {/* Close Button */}
-              <button
-                onClick={shownav}
-                className="absolute top-4 right-4 p-2 hover:bg-richblack-800 rounded-lg"
-              >
-                <svg className="w-6 h-6 fill-richblack-25" viewBox="0 0 24 24">
-                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
-                </svg>
-              </button>
+    //handeling navbar scroll
+    const handleScroll = () => {
+        const currentScrollPos = window.scrollY
 
-              {/* Mobile Auth Buttons */}
-              {token == null && (
-                <div className="space-y-3 mt-8">
-                  <Link
-                    to="/login"
-                    onClick={() => {
-                      dispatch(setProgress(100));
-                      shownav();
-                    }}
-                  >
-                    <button className="w-full py-3 px-4 bg-yellow-50 hover:bg-yellow-100 text-richblack-900 rounded-lg font-semibold text-sm transition-all duration-200">
-                      Login
-                    </button>
-                  </Link>
-                  <Link
-                    to="/signup"
-                    onClick={() => {
-                      dispatch(setProgress(100));
-                      shownav();
-                    }}
-                  >
-                    <button className="w-full py-3 px-4 bg-richblack-800 hover:bg-richblack-700 text-richblack-50 rounded-lg font-semibold text-sm transition-all duration-200">
-                      Sign Up
-                    </button>
-                  </Link>
-                </div>
-              )}
+        if (currentScrollPos > prevScrollPos) {
+            setVisible(false)
+        } else {
+            setVisible(true)
+        }
 
-              {/* Mobile Profile Dropdown */}
-              {token != null && (
-                <div className="mt-8">
-                  <p className="text-sm text-richblack-50 mb-3">Account</p>
-                  <div className="bg-richblack-800 rounded-lg p-2">
-                    <ProfileDropDown />
-                  </div>
-                </div>
-              )}
+        setPrevScrollPos(currentScrollPos)
+    }
 
-              {/* Mobile Navigation Links */}
-              <nav className="mt-8">
-                {/* Catalog Dropdown */}
-                <div className="mb-6">
-                  <p className="text-lg font-semibold text-yellow-50 mb-4">
-                    Courses
-                  </p>
-                  <div className="space-y-2">
-                    {sublinks?.map((element, index) => (
-                      <Link
-                        key={index}
-                        to={`/catalog/${element?.name}`}
-                        onClick={() => {
-                          dispatch(setProgress(30));
-                          shownav();
-                        }}
-                        className="block py-2 px-3 text-sm text-richblack-25 hover:bg-richblack-800 rounded-lg transition-all duration-200"
-                      >
-                        {element?.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
 
-                {/* Other Navigation Links */}
-                <div className="space-y-2">
-                  {NavbarLinks?.map(
-                    (link, index) =>
-                      link.title !== "Catalog" && (
-                        <Link
-                          key={index}
-                          to={link.path}
-                          onClick={() => {
-                            dispatch(setProgress(100));
-                            shownav();
-                          }}
-                          className="block py-2 px-3 text-sm text-richblack-25 hover:bg-richblack-800 rounded-lg transition-all duration-200"
-                        >
-                          {link.title}
-                        </Link>
-                      )
-                  )}
-                </div>
-              </nav>
-            </div>
-          </div>
-        </div>
+        return () => window.removeEventListener('scroll', handleScroll)
+    })
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:block">
-          <ul className="flex items-center gap-x-6 text-richblack-25">
-            {NavbarLinks?.map((element, index) => (
-              <li key={index}>
-                {element.title === "Catalog" ? (
-                  <div className="group relative flex items-center cursor-pointer">
-                    <p className="flex items-center gap-1">
-                      {element.title}
-                      <svg
-                        className="w-4 h-4 fill-richblack-25 transition-transform duration-200 group-hover:rotate-180"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M7 10l5 5 5-5z" />
-                      </svg>
-                    </p>
+    const handelSearch = (e) => {
+        e.preventDefault();
+        if (searchValue?.length > 0) {
+            navigate(`/search/${searchValue}`);
+            setSearchValue("");
+        }
+    }
 
-                    {/* Desktop Dropdown Menu */}
-                    <div className="invisible absolute left-[50%] top-[50%] z-[1000] w-[200px] translate-x-[-50%] translate-y-[3em] rounded-lg bg-richblack-5 p-4 text-richblack-900 opacity-0 transition-all duration-150 group-hover:visible group-hover:translate-y-[1.65em] group-hover:opacity-100 lg:w-[300px]">
-                      <div className="absolute left-[50%] top-0 -z-10 h-6 w-6 translate-x-[80%] translate-y-[-40%] rotate-45 select-none rounded bg-richblack-5"></div>
-                      {sublinks?.map((element, index) => (
-                        <Link
-                          key={index}
-                          to={`/catalog/${element?.name}`}
-                          onClick={() => dispatch(setProgress(30))}
-                          className="block rounded-lg px-4 py-3 hover:bg-richblack-50 transition-all duration-200"
-                        >
-                          {element?.name}
-                        </Link>
-                      ))}
+
+    return (
+        <div className={` flex sm:relative bg-richblack-900 w-screen relative z-50 h-14 items-center justify-center border-b-[1px] border-b-richblack-700 translate-y-  transition-all duration-500`}>
+            <div className='flex w-11/12 max-w-maxContent items-center justify-between'>
+                <Link to='/' onClick={() => { dispatch(setProgress(100)) }}>
+                    <img src={logo} width={160} alt="Study Notion" height={42}></img>
+                </Link>
+                {/* mobile Navbar */}
+                {
+                    user && user?.accountType !== "Instructor" && (
+                        <div className=' md:hidden'>
+                            <Link to='/dashboard/cart' className=' relative left-10' onClick={() => { dispatch(setProgress(100)) }} >
+                                <div className=''>
+                                    <TiShoppingCart className=' fill-richblack-25 w-8 h-8' />
+                                </div>
+                                {
+                                    totalItems > 0 && (
+                                        <span className=' font-medium text-[12px] shadow-[3px ] shadow-black bg-yellow-100 text-richblack-900 rounded-full px-[4px] absolute -top-[2px] right-[1px]'>
+                                            {totalItems}
+                                        </span>
+                                    )
+                                }
+
+                            </Link>
+                        </div>
+                    )
+                }
+
+                <div className={`flex md:hidden  relative gap- flex-row ${token !== null && user?.accountType !== "Instructor" ? " -left-12" : ""}`}>
+                    <GiHamburgerMenu className={`w-16 h-8 fill-richblack-25 absolute left-10 -bottom-4 `} onClick={shownav} />
+                    <div ref={overlay} className=' fixed top-0 bottom-0 left-0 right-0 z-30 bg w-[100vw] hidden h-[100vh] overflow-y-hidden bg-[rgba(0,0,0,0.5)] ' onClick={shownav}></div>
+                    <div ref={show} className='mobNav z-50'>
+                        <nav className=' items-center flex flex-col absolute w-[200px] -left-[80px] -top-7  glass2' ref={show}>
+                            {
+                                token == null && (
+                                    <Link to='/login' className='' onClick={() => { dispatch(setProgress(100)) }} >
+                                        <button onClick={shownav} className=' mt-4 text-center text-[15px] px-6 py-2 rounded-md font-semibold bg-yellow-50 text-black hover:scale-95 transition-all duration-200'>
+                                            Login
+                                        </button>
+                                    </Link>
+                                )
+                            }
+                            {
+                                token == null && (
+                                    <Link to='/signup' className='text-yellow-50' onClick={() => { dispatch(setProgress(100)) }} >
+                                        <button onClick={shownav} className='mt-4 text-center text-[15px] px-5 py-2 rounded-md font-semibold bg-yellow-50 text-black hover:scale-95 transition-all duration-200' >
+                                            Signup
+                                        </button>
+                                    </Link>
+
+                                )
+                            }
+
+                            {
+                                token != null && (
+                                    <div className=' mt-2' >
+                                        <p className=' text-richblack-50 text-center mb-2'>Account</p>
+                                        {/* <Link to='/dashboard' onClick={()=>{dispatch(setProgress(100));shownav()}} className="p-2"> */}
+                                        <ProfileDropDown />
+                                        {/* </Link> */}
+                                    </div>
+                                )
+                            }
+                            <div className=' mt-4 mb-4 bg-richblack-25 w-[200px] h-[2px]'></div>
+                            <p className=' text-xl text-yellow-50 font-semibold'>Courses</p>
+                            <div className=' flex flex-col items-end pr-4'>
+                                {
+                                    sublinks?.length < 0 ? (<div></div>) : (
+                                        sublinks?.map((element, index) => (
+                                            <Link to={`/catalog/${element?.name}`} key={index} onClick={() => { dispatch(setProgress(30)); shownav() }} className="p-2 text-sm">
+                                                <p className=' text-richblack-5 '>
+                                                    {element?.name}
+                                                </p>
+                                            </Link>
+                                        )))
+                                }
+                            </div>
+                            <div className=' mt-4 mb-4 bg-richblack-25 w-[200px] h-[2px]'></div>
+                            <Link to='/about' onClick={() => { dispatch(setProgress(100)); shownav() }} className="p-2">
+                                <p className=' text-richblack-5 '>
+                                    About
+                                </p>
+                            </Link>
+                            <Link to='/contact' onClick={() => { dispatch(setProgress(100)); shownav() }} className="p-2">
+                                <p className=' text-richblack-5 '>
+                                    Contact
+                                </p>
+                            </Link>
+                        </nav>
                     </div>
-                  </div>
-                ) : (
-                  <Link
-                    to={element?.path}
-                    onClick={() => dispatch(setProgress(100))}
-                    className={`transition-all duration-200 hover:text-yellow-50 ${
-                      matchRoutes(element?.path)
-                        ? "text-yellow-25"
-                        : "text-richblack-25"
-                    }`}
-                  >
-                    {element?.title}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
+                </div>
 
-        {/* Desktop Cart & Auth */}
-        <div className="hidden md:flex items-center gap-x-4">
-          {/* Search Bar */}
-          <form onSubmit={handelSearch} className="relative">
-            <input
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              type="text"
-              placeholder="Search"
-              className="w-28 py-2 pl-3 pr-10 text-sm text-richblack-50 bg-richblack-700 rounded-full focus:outline-none focus:ring-1 focus:ring-richblack-400 transition-all duration-200"
-            />
-            <button
-              type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2"
-            >
-              <HiSearch className="w-5 h-5 text-richblack-100" />
-            </button>
-          </form>
 
-          {/* Desktop Cart Icon */}
-          {user && user?.accountType !== "Instructor" && (
-            <Link
-              to="/dashboard/cart"
-              onClick={() => dispatch(setProgress(100))}
-              className="relative p-2"
-            >
-              <TiShoppingCart className="w-7 h-7 fill-richblack-25" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-yellow-100 text-richblack-900 text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-          )}
 
-          {/* Desktop Auth Buttons */}
-          {token == null ? (
-            <div className="flex items-center gap-x-3">
-              <Link to="/login" onClick={() => dispatch(setProgress(100))}>
-                <button className="py-2 px-4 text-sm font-medium text-richblack-100 bg-richblack-800 border border-richblack-700 rounded-lg hover:bg-richblack-700 transition-all duration-200">
-                  Login
-                </button>
-              </Link>
-              <Link to="/signup" onClick={() => dispatch(setProgress(100))}>
-                <button className="py-2 px-4 text-sm font-medium text-richblack-100 bg-richblack-800 border border-richblack-700 rounded-lg hover:bg-richblack-700 transition-all duration-200">
-                  Sign Up
-                </button>
-              </Link>
+                {/* Desktop Navbar */}
+                <nav>
+                    <ul className=' flex-row gap-x-6 text-richblack-25 gap-5 hidden md:flex'>
+                        {
+                            NavbarLinks?.map((element, index) => (
+                                <li key={index} >
+                                    {
+                                        element.title === "Catalog" ? (<div className=' flex items-center group relative cursor-pointer'>
+                                            <p>{element.title}</p>
+                                            <svg width="25px" height="20px" viewBox="0 0 24.00 24.00" fill="none" xmlns="http://www.w3.org/2000/svg" transform="rotate(0)" stroke="#000000" strokeWidth="0.00024000000000000003"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.384"></g><g id="SVGRepo_iconCarrier"> <path fillRule="evenodd" clipRule="evenodd" d="M4.29289 8.29289C4.68342 7.90237 5.31658 7.90237 5.70711 8.29289L12 14.5858L18.2929 8.29289C18.6834 7.90237 19.3166 7.90237 19.7071 8.29289C20.0976 8.68342 20.0976 9.31658 19.7071 9.70711L12.7071 16.7071C12.3166 17.0976 11.6834 17.0976 11.2929 16.7071L4.29289 9.70711C3.90237 9.31658 3.90237 8.68342 4.29289 8.29289Z" fill="#ffffff"></path> </g></svg>
+
+                                            <div className='invisible absolute left-[50%] top-[50%] z-[1000] flex w-[200px] translate-x-[-50%] translate-y-[3em] flex-col rounded-lg bg-richblack-5 p-4 text-richblack-900 opacity-0 transition-all duration-150 group-hover:visible group-hover:translate-y-[1.65em] group-hover:opacity-100 lg:w-[300px]'>
+                                                <div className='absolute left-[50%] top-0 -z-10 h-6 w-6 translate-x-[80%] translate-y-[-40%] rotate-45 select-none rounded bg-richblack-5'></div>
+                                                {
+                                                    sublinks?.length < 0 ? (<div></div>) : (
+                                                        sublinks?.map((element, index) => (
+                                                            <Link to={`/catalog/${element?.name}`} key={index} className="rounded-lg bg-transparent py-4 pl-4 hover:bg-richblack-50" onClick={() => { dispatch(setProgress(30)) }}>
+                                                                <p className=''>
+                                                                    {element?.name}
+                                                                </p>
+                                                            </Link>
+                                                        ))
+                                                    )
+
+                                                }
+
+
+
+
+
+
+                                            </div>
+
+
+
+                                        </div>) : (
+
+                                            <Link to={element?.path} onClick={() => { dispatch(setProgress(100)) }} >
+                                                <p className={`${matchRoutes(element?.path) ? " text-yellow-25" : " text-richblack-25 hidden md:block"}`} >
+                                                    {element?.title}
+                                                </p>
+                                            </Link>
+                                        )
+                                    }
+                                </li>
+                            ))
+                        }
+                        <form onSubmit={handelSearch} className='flex items-center relative'>
+                            <input value={searchValue} onChange={(e) => { setSearchValue(e.target.value) }} id='searchinput' type="text" placeholder="Search" className=' absolute top-0 left-0 border-0 focus:ring-1 ring-richblack-400 rounded-full px-2 py-1 text-[15px] w-28 text-richblack-50 focus:outline-none focus:border-transparent bg-richblack-700' />
+                            <HiSearch type='submit' id='searchicon' size={20} className=" text-richblack-100 top-1 absolute cursor-pointer left-20" />
+                        </form>
+                    </ul>
+                </nav>
+
+                <div className='flex-row gap-5 hidden md:flex items-center'>
+                    {
+                        user && user?.accountType !== "Instructor" && (
+                            <Link to='/dashboard/cart' className=' relative px-4 ' onClick={() => { dispatch(setProgress(100)) }} >
+                                <div className=' z-50'>
+                                    <TiShoppingCart className=' fill-richblack-25 w-7 h-7' />
+                                </div>
+                                {
+                                    totalItems > 0 && (
+                                        <span className=' shadow-sm shadow-black text-[10px] font-bold bg-yellow-100 text-richblack-900 rounded-full px-1 absolute -top-[2px] right-[8px]'>
+                                            {totalItems}
+                                        </span>
+                                    )
+                                }
+
+                            </Link>
+                        )
+                    }
+                    {
+                        token == null && (
+                            <Link to='/login' className='text-richblack-25' onClick={() => { dispatch(setProgress(100)) }} >
+                                <button className='rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[7px] text-richblack-100'>
+                                    Login
+                                </button>
+                            </Link>
+                        )
+                    }
+                    {
+                        token == null && (
+                            <Link to='/signup' className='text-richblack-25' onClick={() => { dispatch(setProgress(100)) }} >
+                                <button className='rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[7px] text-richblack-100' >
+                                    Signup
+                                </button>
+                            </Link>
+                        )
+                    }
+                    {
+                        token !== null && (
+                            <div className=' pt-2' >
+                                <ProfileDropDown />
+                            </div>
+                        )
+                    }
+                </div>
             </div>
-          ) : (
-            <div className="ml-4">
-              <ProfileDropDown />
-            </div>
-          )}
         </div>
-      </div>
-    </div>
-  );
-};
+    )
+}
 
-export default NavBar;
+export default NavBar
